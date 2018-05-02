@@ -1,9 +1,70 @@
+/*
+ * This file is part of Tokio File Futures.
+ *
+ * Copyright © 2017 Riley Trautman
+ *
+ * Tokio File Futures is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Tokio File Futures is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Tokio File Futures.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//! # File Futures
+//!
+//! This crate provides the Futures abstraction around many of the poll methods provided in tokio-fs.
+//!
+//! There's really not much to it.
+//!
+//! ### Example
+//! ```rust
+//! # extern crate file_futures;
+//! # extern crate futures;
+//! # extern crate tokio;
+//! # extern crate tokio_fs;
+//! use std::io::SeekFrom;
+//!
+//! use file_futures::AsyncFile;
+//! use futures::Future;
+//! use tokio_fs::File;
+//!
+//! fn main() {
+//!     let future = File::create("/tmp/some-tmpfile")
+//!         .map_err(|e| println!("Create Error {}", e))
+//!         .and_then(|_| {
+//!             let future1 = File::open("/tmp/some-tmpfile")
+//!                 .and_then(|file| file.metadata().and_then(|(_file, _metadata)| Ok(())))
+//!                 .map_err(|e| println!("Error1: {}", e));
+//!
+//!             let future2 = File::open("/tmp/some-tmpfile")
+//!                 .and_then(|file| {
+//!                     file.seek(SeekFrom::Start(30))
+//!                         .and_then(|(_file, _from_start)| Ok(()))
+//!                 })
+//!                 .map_err(|e| println!("Error2: {}", e));
+//!
+//!             future1.join(future2)
+//!         })
+//!         .map_err(|_| panic!("Error somewhere"));
+//!
+//!     tokio::run(future.map(|_| ()));
+//! }
+//! ```
+
 extern crate futures;
 extern crate tokio_fs;
 
 use std::{fs::{Metadata, Permissions}, io::{Error, SeekFrom}};
 use futures::{Async, Future, Poll};
 
+/// The trait that provides the futures associated with `tokio_fs::File`'s poll methods.
 pub trait AsyncFile: Sized {
     fn poll_seek(&mut self, pos: SeekFrom) -> Poll<u64, Error>;
     fn poll_sync_all(&mut self) -> Poll<(), Error>;

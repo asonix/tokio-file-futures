@@ -14,3 +14,6 @@ name = "file_futures"
 [dependencies]
 futures = "0.1"
 tokio-fs = "0.1"
+
+[dev-dependencies]
+tokio = "0.1"
