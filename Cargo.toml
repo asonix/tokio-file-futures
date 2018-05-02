@@ -1,0 +1,16 @@
+[package]
+name = "tokio-file-futures"
+description = "Some basic futures on top of tokio-fs's polled file operations"
+version = "0.1.0"
+license = "GPL-3.0"
+authors = ["asonix <asonix.dev@gmail.com>"]
+repository = "https://github.com/asonix/file-futures"
+readme = "README.md"
+keywords = ["tokio", "fs", "filesystem", "futures"]
+
+[lib]
+name = "file_futures"
+
+[dependencies]
+futures = "0.1"
+tokio-fs = "0.1"
